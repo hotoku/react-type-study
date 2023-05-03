@@ -1,6 +1,9 @@
 import os
 import pathlib as pl
 import sqlite3
+from typing import Any
+
+import pandas as pd
 
 _PATH = pl.Path(__file__).parent / "db.sqlite"
 
@@ -54,3 +57,8 @@ insert into deals (
 );
 """, [(d, i) for d, i in zip(deals, clients_gen())])
     con.commit()
+
+
+def query(sql: str) -> pd.DataFrame:
+    con = sqlite3.connect(_PATH)
+    return pd.read_sql(sql, con)
