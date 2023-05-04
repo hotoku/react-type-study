@@ -99,3 +99,74 @@ def post():
                 "message": str(ex)
             }
         }), 500
+
+
+@dataclass(frozen=True)
+class PutParam:
+    id: int
+    name: str
+
+    @staticmethod
+    def create(payload: str) -> PutParam:
+        schema = {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ]
+        }
+        data = json.loads(payload)
+        jss.validate(data, schema)
+        return PutParam(
+            data["id"],
+            data["name"]
+        )
+
+
+@app.put("/clients")
+def put():
+    payload = request.get_data().decode()
+    try:
+        param = PutParam.create(payload)
+    except Exception as ex:
+        return jsonify({
+            "error": {
+                "code": 400,
+                "message": str(ex)
+            }
+        }), 400
+    con = db.connection()
+    try:
+        # todo: 要サニタイズ
+        sql = f"""
+        update clients
+        set
+          name="{param.name}"
+        where
+          id={param.id}
+"""
+        LOGGER.debug("sql: %s", sql)
+        db.execute(sql, con)
+        con.commit()
+        return jsonify({
+            "success": {
+                "code": 200,
+                "message": f"successfully updated id {param.id}"
+            }
+        }), 200
+    except Exception as ex:
+        con.rollback()
+        return jsonify({
+            "error": {
+                "code": 500,
+                "message": str(ex)
+            }
+        }), 500
