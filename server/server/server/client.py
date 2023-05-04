@@ -11,7 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @app.get("/clients/<clid>")
-def get(clid):
+def get_client(clid):
     # todo: 要サニタイズ
     sql = f"""
 select
@@ -54,7 +54,7 @@ class PostParam:
 
 
 @app.post("/clients")
-def post():
+def post_client():
     payload = request.get_data().decode()
     try:
         param = PostParam.create(payload)
@@ -132,7 +132,7 @@ class PutParam:
 
 
 @app.put("/clients")
-def put():
+def put_client():
     payload = request.get_data().decode()
     try:
         param = PutParam.create(payload)
