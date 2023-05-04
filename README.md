@@ -11,7 +11,7 @@ ReactをTypeScriptで開発したい、と思ったときに、型を、どう�
 
 ``` mermaid
 erDiagram
-  Client ||--|{ Deal : contains
+  Client ||--o{ Deal : contains
   Client {
     int id
     string name
