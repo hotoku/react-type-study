@@ -59,6 +59,17 @@ insert into deals (
     con.commit()
 
 
-def query(sql: str) -> pd.DataFrame:
-    con = sqlite3.connect(_PATH)
+def query(sql: str, con=None) -> pd.DataFrame:
+    if con is None:
+        con = sqlite3.connect(_PATH)
     return pd.read_sql(sql, con)
+
+
+def execute(sql: str, con=None):
+    if con is None:
+        con = sqlite3.connect(_PATH)
+    con.execute(sql)
+
+
+def connection() -> sqlite3.Connection:
+    return sqlite3.connect(_PATH)

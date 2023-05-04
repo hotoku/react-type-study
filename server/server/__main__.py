@@ -1,11 +1,25 @@
+import logging
+import sys
+
 import click
 
 from . import db
 from .server import app
 
+LOGGER = logging.getLogger(__name__)
+
+
+def setup_logging(debug: bool):
+    logging.basicConfig(
+        level=logging.DEBUG if debug else logging.INFO,
+        format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
+        stream=sys.stderr
+    )
+
 
 @click.group
 def main():
+    setup_logging(True)
     db.clean()
     db.init()
     db.load()
