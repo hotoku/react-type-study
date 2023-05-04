@@ -1,6 +1,6 @@
 import { validate } from "jsonschema";
 
-import { Client, ClientWithDeals, Deal } from "./types";
+import { ClientWithDeals } from "./types";
 
 export async function getAllClients(): Promise<ClientWithDeals[]> {
   const res = await fetch("/clients");
@@ -21,9 +21,17 @@ export async function getAllClients(): Promise<ClientWithDeals[]> {
           items: {
             type: "object",
             properties: {
-              id: "integer",
-              name: "string",
+              id: {
+                type: "integer",
+              },
+              name: {
+                type: "string",
+              },
+              client_id: {
+                type: "integer",
+              },
             },
+            required: ["id", "name", "client_id"],
           },
         },
       },

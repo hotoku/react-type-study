@@ -9,6 +9,4 @@ export type Deal = {
   clientId: number;
 };
 
-export type ClientWithDeals = Client & {
-  deals: Deal[];
-};
+export type ClientWithDeals = Client & { deals: Deal[] };

@@ -1,10 +1,29 @@
 import { useEffect, useState } from "react";
 import { getAllClients } from "../api/requests";
-import { Client, ClientWithDeals } from "../api/types";
+import { ClientWithDeals, Deal } from "../api/types";
 
-type ClientListProps = {};
+type DealListItemProps = { deal: Deal };
 
-function ClientList({}: ClientListProps): JSX.Element {
+function DealListItem({ deal }: DealListItemProps): JSX.Element {
+  return <li>{deal.name}</li>;
+}
+
+type ClientListItemProps = { client: ClientWithDeals };
+
+function ClientListItem({ client }: ClientListItemProps): JSX.Element {
+  return (
+    <li key={client.id}>
+      {client.name}
+      <ol>
+        {client.deals.map((d) => (
+          <DealListItem key={d.id} deal={d} />
+        ))}
+      </ol>
+    </li>
+  );
+}
+
+function ClientList(): JSX.Element {
   const [clients, setClients] = useState<ClientWithDeals[]>([]);
 
   useEffect(() => {
@@ -14,9 +33,9 @@ function ClientList({}: ClientListProps): JSX.Element {
   return (
     <div>
       <ol>
-        {clients.map((c) => {
-          return <li key={c.id}>{c.name}</li>;
-        })}
+        {clients.map((c) => (
+          <ClientListItem key={c.id} client={c} />
+        ))}
       </ol>
     </div>
   );

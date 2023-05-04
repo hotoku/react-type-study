@@ -34,16 +34,36 @@ def get_all_client():
     # todo: 要サニタイズ
     sql = f"""
 select
-    id,
-    name
+    l.id as client_id,
+    l.name as client_name,
+    r.id as deal_id,
+    r.name as deal_name
 from
-    clients
+    clients l
+      inner join
+    deals r
+      on l.id = r.client_id
 """
     ret = db.query(sql)
-    return jsonify([{
-        "id": int(ret["id"].iloc[i]),
-        "name": ret["name"].iloc[i]
-    } for i in range(len(ret))])
+
+    clients = {}
+    for r in range(len(ret)):
+        cid = int(ret["client_id"].iloc[r])
+        if cid not in clients:
+            clients[cid] = {
+                "id": cid,
+                "name": ret["client_name"].iloc[r],
+                "deals": []
+            }
+        cl = clients[cid]
+        deal = {
+            "id": int(ret["deal_id"].iloc[r]),
+            "name": ret["deal_name"].iloc[r],
+            "client_id": cid
+        }
+        cl["deals"].append(deal)
+
+    return jsonify(list(clients.values()))
 
 
 @dataclass(frozen=True)
