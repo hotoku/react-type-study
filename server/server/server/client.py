@@ -29,6 +29,23 @@ where
     })
 
 
+@app.get("/clients")
+def get_all_client():
+    # todo: 要サニタイズ
+    sql = f"""
+select
+    id,
+    name
+from
+    clients
+"""
+    ret = db.query(sql)
+    return jsonify([{
+        "id": int(ret["id"].iloc[i]),
+        "name": ret["name"].iloc[i]
+    } for i in range(len(ret))])
+
+
 @dataclass(frozen=True)
 class PostParam:
     name: str

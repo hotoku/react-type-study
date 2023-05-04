@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { getAllClients } from "../api/requests";
-import { Client } from "../api/types";
+import { Client, ClientWithDeals } from "../api/types";
 
 type ClientListProps = {};
 
 function ClientList({}: ClientListProps): JSX.Element {
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<ClientWithDeals[]>([]);
 
   useEffect(() => {
     getAllClients().then((cs) => setClients(cs));
@@ -13,9 +13,11 @@ function ClientList({}: ClientListProps): JSX.Element {
 
   return (
     <div>
-      {clients.map((c) => {
-        return <p>{c.name}</p>;
-      })}
+      <ol>
+        {clients.map((c) => {
+          return <li key={c.id}>{c.name}</li>;
+        })}
+      </ol>
     </div>
   );
 }

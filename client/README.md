@@ -1,46 +1,64 @@
-# Getting Started with Create React App
+# React開発で、オブジェクトの型を、どう定義するのが効率的なのかを調べる
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+ReactをTypeScriptで開発したい、と思ったときに、型を、どうやって定義したら良いのか意外と自明ではなかったので
+調べてみた。
 
-## Available Scripts
+## 例
 
-In the project directory, you can run:
+例えば、以下のようなER図で表されるClientとDealというエンティティのCRUDアプリを考えてみる。
 
-### `npm start`
+``` mermaid
+erDiagram
+  Client ||--o{ Deal : contains
+  Client {
+    int id
+    string name
+  }
+  Deal {
+    int id
+    string name
+    int clientId
+  }
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+すごいシンプルに
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+``` typescript
+type Client = {
+    id: number,
+    name: string
+};
+type Deal = {
+    id: number,
+    name: string,
+    clientId: number
+}
+```
 
-### `npm test`
+というような型を、まずは定義することになる。
+しかし、実際にCRUDの機能を考えると、型はこれだけでは全く足らないことが分かる。
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 新規作成時の問題
 
-### `npm run build`
+例えば、Dealの新規作成を考える。Dealを作成するにはnameとclientIdが必要なので、それぞれを入力するための
+何かしらの入力要素が用意される。Reactでは、`useState`を使って、これら入力要素の内容をstateと同期することが
+一般的である。
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+このstateの型をどうすれば良いか。DBのスキーマから自然に導かれる型においては、
+Dealの全てのプロパティはnot nullである。
+一方で、今、まさに定義しようとしているDealオブジェクトには、まだ、名前が記入されてないかもしれない。
+そもそも、idはDBで自動発番したいので、フロント側で情報を入力している間には決まりようがない 🙃
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 一覧時の問題
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Clientの一覧画面を考えてみる。Clientには、0個以上複数のDealが紐付いているので、こいつらも一緒に表示したいとしよう。
+個々のClientごとに、対応するDealを問い合わせるのはN+1問題なので、API側に、Dealも含めてClientの一覧を返すような
+エンドポイントを用意することになるだろう。この返り値の型は、どうすべきだろうか。
+上のClient型の定義には、`deals: Deal[]`のようなプロパティはない 🤔
 
-### `npm run eject`
+## まとめ
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+上のような状況に対応するためには、基本となる型(ClientやDeal)をもとにして、一部のプロパティをOptionalにしたり、新しいプロパティを追加したりできるようにしたい。TypeScriptには、Omit、Pick、Partialなどなど、そういったニーズに
+対応する型を操作して別の型を作る機能がある。
+Reactで、典型的なアプリを作る場合に、これらをどう組み合わせるのが効果的なのかを調べた・・というのがこのレポジトリの
+意図である。
