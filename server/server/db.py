@@ -14,7 +14,7 @@ def clean():
 
 
 def init():
-    con = sqlite3.connect(_PATH)
+    con = connection()
     con.executescript("""
 create table clients (
     id integer primary key,
@@ -24,14 +24,15 @@ create table deals (
     id integer primary key,
     name text not null,
     client_id integer not null,
-    is_finished boolean default false
+    is_finished boolean default false,
+    foreign key(client_id) references clients(id)
 );
 """)
 
 
 def load():
     clients = [("client-1",), ("client-2",), ("client-3",)]
-    con = sqlite3.connect(_PATH)
+    con = connection()
     con.executemany("""
 insert into clients (
     name
@@ -61,15 +62,17 @@ insert into deals (
 
 def query(sql: str, con=None) -> pd.DataFrame:
     if con is None:
-        con = sqlite3.connect(_PATH)
+        con = connection()
     return pd.read_sql(sql, con)
 
 
 def execute(sql: str, con=None):
     if con is None:
-        con = sqlite3.connect(_PATH)
+        con = connection()
     con.execute(sql)
 
 
 def connection() -> sqlite3.Connection:
-    return sqlite3.connect(_PATH)
+    con = sqlite3.connect(_PATH)
+    con.execute('PRAGMA foreign_keys = ON')
+    return con
