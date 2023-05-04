@@ -27,7 +27,7 @@ def main():
 
 @main.command
 def start():
-    app.run(debug=True, host="0.0.0.0", port=18888)
+    app.run(debug=True, host="0.0.0.0", port=18889)
 
 
 if __name__ == "__main__":
