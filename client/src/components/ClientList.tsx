@@ -37,6 +37,8 @@ function ClientList(): JSX.Element {
           <ClientListItem key={c.id} client={c} />
         ))}
       </ol>
+      <button>add client</button>
+      <button>add deal</button>
     </div>
   );
 }
