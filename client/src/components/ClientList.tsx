@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { getAllClients } from "../api/requests";
 import { ClientWithDeals, Deal } from "../api/types";
 
@@ -25,6 +26,7 @@ function ClientListItem({ client }: ClientListItemProps): JSX.Element {
 
 function ClientList(): JSX.Element {
   const [clients, setClients] = useState<ClientWithDeals[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAllClients().then((cs) => setClients(cs));
@@ -37,7 +39,13 @@ function ClientList(): JSX.Element {
           <ClientListItem key={c.id} client={c} />
         ))}
       </ol>
-      <button>add client</button>
+      <button
+        onClick={() => {
+          navigate("/clients/new");
+        }}
+      >
+        add client
+      </button>
       <button>add deal</button>
     </div>
   );

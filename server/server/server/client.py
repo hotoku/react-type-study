@@ -40,7 +40,7 @@ select
     r.name as deal_name
 from
     clients l
-      inner join
+      left outer join
     deals r
       on l.id = r.client_id
 """
@@ -56,12 +56,13 @@ from
                 "deals": []
             }
         cl = clients[cid]
-        deal = {
-            "id": int(ret["deal_id"].iloc[r]),
-            "name": ret["deal_name"].iloc[r],
-            "client_id": cid
-        }
-        cl["deals"].append(deal)
+        if ret["deal_name"].iloc[r]:
+            deal = {
+                "id": int(ret["deal_id"].iloc[r]),
+                "name": ret["deal_name"].iloc[r],
+                "client_id": cid
+            }
+            cl["deals"].append(deal)
 
     return jsonify(list(clients.values()))
 
@@ -93,6 +94,7 @@ class PostParam:
 @app.post("/clients")
 def post_client():
     payload = request.get_data().decode()
+    LOGGER.debug("payload: %s", payload)
     try:
         param = PostParam.create(payload)
     except Exception as ex:
@@ -116,17 +118,18 @@ def post_client():
         db.execute(sql, con)
         sql2 = """
         select
-          last_insert_rowid() as id
+          id,
+          name
         from
           clients
+        where
+          id = last_insert_rowid()
 """
         df = db.query(sql2, con)
         con.commit()
         return jsonify({
-            "success": {
-                "code": 200,
-                "message": f"successfully inserted id {df['id'].iloc[0]}"
-            }
+            "id": int(df["id"].iloc[0]),
+            "name": df["name"].iloc[0]
         }), 200
     except Exception as ex:
         con.rollback()
