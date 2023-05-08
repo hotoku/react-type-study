@@ -46,7 +46,13 @@ function ClientList(): JSX.Element {
       >
         add client
       </button>
-      <button>add deal</button>
+      <button
+        onClick={() => {
+          navigate("/deals/new");
+        }}
+      >
+        add deal
+      </button>
     </div>
   );
 }
