@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createClient } from "../api/requests";
 import { Client } from "../api/types";
 
 function ClientEditor(): JSX.Element {
   const [obj, setObj] = useState<Partial<Client>>({});
+  const navigate = useNavigate();
   return (
     <div>
       <label>
@@ -18,7 +20,7 @@ function ClientEditor(): JSX.Element {
       </label>
       <button
         onClick={() => {
-          createClient(obj);
+          createClient(obj).then(() => navigate("/"));
         }}
       >
         save
